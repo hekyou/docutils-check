@@ -1,0 +1,131 @@
+<html>
+<head>
+  <title>docutils check tool</title>
+  <link rel="stylesheet" href="/static/bootstrap/bootstrap.css" type="text/css" />
+  <link rel="stylesheet" href="/static/bootstrap/bootstrap-responsive.css" type="text/css" />
+  <link rel="stylesheet" href="/static/codemirror/lib/codemirror.css" />
+  <link rel="stylesheet" href="/static/codemirror/theme/night.css" />
+  <link rel="stylesheet" href="/static/codemirror/doc/docs.css" />
+  <link rel="stylesheet" href="/static/docct.css" />
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="/">docutils check tool</a>
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span6">
+        <form class="well form-inline">
+          <label class="radio">
+            <input id="keymap01" type="radio" name="keymap" value="default" checked="checked" /> normal
+          </label>
+          <label class="radio">
+            <input id="keymap02" type="radio" name="keymap" value="vim" /> vim
+          </label>
+          <label class="radio">
+            <input id="keymap03" type="radio" name="keymap" value="emacs" /> emacs
+          </label>
+        </form>
+        <h3>reStructuredText</h3>
+        <textarea id="code" name="code"></textarea>
+      </div>
+      <div class="span6">
+        <form class="well form-inline">
+          <label class="radio">
+            <input id="style01" type="radio" name="style" value="basic" /> basic
+          </label>
+          <label class="radio">
+            <input id="style02" type="radio" name="style" value="bizstyle" checked="checked" /> bizstyle
+          </label>
+        </form>
+        <h3>HTML</h3>
+        <iframe src="/bizstyle" frameborder="0" id="view"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span6">
+        <h3>doctree</h3>
+        <iframe src="/doctree" frameborder="0" id="doctree"></iframe>
+      </div>
+      <div class="span6">
+        <h3>HTML Source</h3>
+        <iframe src="/htmltag" frameborder="0" id="htmltag"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="/static/jquery-1.8.0.min.js"></script>
+  <script type="text/javascript" src="/static/bootstrap/bootstrap.js"></script>
+  <script type="text/javascript" src="/static/codemirror/lib/codemirror.js"></script>
+  <script type="text/javascript" src="/static/codemirror/mode/rst/rst.js"></script>
+  <script type="text/javascript" src="/static/codemirror/keymap/vim.js"></script>
+  <script type="text/javascript" src="/static/codemirror/keymap/emacs.js"></script>
+  <script type="text/javascript">
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        lineWrapping: true,
+        matchBrackets: true,
+        theme: "night",
+    });
+
+    var ws = new WebSocket("ws://0.0.0.0:5000/");
+    ws.onmessage = function(e) {
+        var data = eval("(" + e.data + ")");
+        var doctree = $("#doctree").contents().find('body');
+        doctree.html("<pre>"+data.doctree+"</pre>");
+        var view = $("#view").contents().find('body');
+        view.html(data.html);
+        var tag = $("#htmltag").contents().find('body');
+        tag.html("<pre>"+data.htmltag+"</pre>");
+    };
+    ws.onclose = function(e) {
+        //alert("close");
+    };
+    ws.onerror = function(e) {
+        //alert("error");
+    };
+
+    var code_prev = $("#code").val();
+    var loop = function() {
+        editor.save();
+        var code = $('#code').val();
+        if (code_prev != code) {
+            ws.send(code);
+            code_prev = code;
+        }
+        setTimeout(loop, 200);
+    };
+    loop();
+
+    $("input[name='keymap']:radio").change(function() {
+        var keymap = $("input[name='keymap']:checked").val();
+        editor.setOption("keyMap", keymap);
+    });
+  </script>
+</body>
+</html>
+

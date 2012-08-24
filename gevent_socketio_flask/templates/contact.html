@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Contact | docutils check tool</title>
+  <link rel="stylesheet" href="/static/bootstrap/bootstrap.css" type="text/css" />
+  <link rel="stylesheet" href="/static/bootstrap/bootstrap-responsive.css" type="text/css" />
+  <link rel="stylesheet" href="/static/codemirror/lib/codemirror.css" />
+  <link rel="stylesheet" href="/static/codemirror/theme/night.css" />
+  <link rel="stylesheet" href="/static/codemirror/doc/docs.css" />
+  <link rel="stylesheet" href="/static/docct.css" />
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="/">docutils check tool</a>
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li class="active"><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span6">
+        <h3>reStructuredText</h3>
+        <textarea id="code" name="code">
+Contact
+=======
+
+Twitter
+-------
+
+|
+
+:Account: @hekyou
+:Icon: |icon|
+
+.. |icon| image:: /static/hekyou.jpg
+   :height: 50
+   :width: 50
+
+|
+
+.. admonition:: お願い
+   :class: important
+
+   ご指摘やご要望等ありましたらTwitterにてご連絡頂けますと幸いです。
+</textarea>
+      </div>
+      <div class="span6">
+        <h3>HTML</h3>
+        <iframe src="/bizstyle" frameborder="0" id="view"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="/static/jquery-1.8.0.min.js"></script>
+  <script type="text/javascript" src="/static/bootstrap/bootstrap.js"></script>
+  <script type="text/javascript" src="/static/codemirror/lib/codemirror.js"></script>
+  <script type="text/javascript" src="/static/codemirror/mode/rst/rst.js"></script>
+  <script type="text/javascript" src="/static/socketio/socket.io.min.js"></script>
+  <script type="text/javascript">
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        lineWrapping: true,
+        matchBrackets: true,
+        readOnly: true,
+        theme: "night",
+    });
+
+    var socket = io.connect('');
+
+    socket.on('connect', function() {
+        socket.send($("#code").val());
+    });
+
+    socket.on('message', function(e) {
+        var data = eval("(" + e + ")");
+        var view = $("#view").contents().find('body');
+        view.html(data.html);
+    });
+  </script>
+</body>
+</html>
+

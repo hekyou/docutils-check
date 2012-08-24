@@ -1,0 +1,109 @@
+<html>
+<head>
+  <title>About | docutils check tool</title>
+  <link rel="stylesheet" href="/static/bootstrap/bootstrap.css" type="text/css" />
+  <link rel="stylesheet" href="/static/bootstrap/bootstrap-responsive.css" type="text/css" />
+  <link rel="stylesheet" href="/static/codemirror/lib/codemirror.css" />
+  <link rel="stylesheet" href="/static/codemirror/theme/night.css" />
+  <link rel="stylesheet" href="/static/codemirror/doc/docs.css" />
+  <link rel="stylesheet" href="/static/docct.css" />
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="/">docutils check tool</a>
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span6">
+        <h3>reStructuredText</h3>
+        <textarea id="code" name="code">
+docutilsの動作チェックツールです
+================================
+
+reStructuredText欄
+------------------
+
+* **reStructuredText** (reST) の形式で入力してください
+
+
+HTML欄
+------
+
+* ブラウザでの表示結果が確認できます。
+
+* 期待通りに表示されているかな？
+
+
+doctree欄
+---------
+
+* **docutils中間コード** (doctree) への変換結果が確認できます。
+
+* reStructuredTextの微妙な違いをdocutilsがどう解釈しているのか気になる方へ！
+
+
+HTML Source欄
+-------------
+
+* HTMLタグへの変換結果が確認できます。
+
+* 見た目が気に入らない場合はここを参考にTheme作成に挑戦！？
+</textarea>
+      </div>
+      <div class="span6">
+        <h3>HTML</h3>
+        <iframe src="/bizstyle" frameborder="0" id="view"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="/static/jquery-1.8.0.min.js"></script>
+  <script type="text/javascript" src="/static/bootstrap/bootstrap.js"></script>
+  <script type="text/javascript" src="/static/codemirror/lib/codemirror.js"></script>
+  <script type="text/javascript" src="/static/codemirror/mode/rst/rst.js"></script>
+  <script type="text/javascript" src="/static/socketio/socket.io.min.js"></script>
+  <script type="text/javascript">
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        lineWrapping: true,
+        matchBrackets: true,
+        readOnly: true,
+        theme: "night",
+    });
+
+    var socket = io.connect('');
+
+    socket.on('connect', function() {
+        socket.send($("#code").val());
+    });
+
+    socket.on('message', function(e) {
+        var data = eval("(" + e + ")");
+        var view = $("#view").contents().find('body');
+        view.html(data.html);
+    });
+  </script>
+</body>
+</html>
+
